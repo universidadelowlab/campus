@@ -192,6 +192,16 @@ const course = [
 }));
 
 const lessonMap = new Map(course.flatMap((module) => module.lessons.map((lesson) => [lesson.id, { ...lesson, module }])));
+// Modo demonstração (afiliados): só as aulas entregues pelo banco abrem; o resto aparece igual, mas não responde ao clique.
+const demoUnlocked = window.LOWLAB_DEMO_UNLOCKED instanceof Set ? window.LOWLAB_DEMO_UNLOCKED : null;
+const isLessonLocked = (id) => Boolean(demoUnlocked) && !demoUnlocked.has(id);
+const isModuleLocked = (id) => Boolean(demoUnlocked) && !course.some((module) => module.id === id && module.lessons.some((lesson) => demoUnlocked.has(lesson.id)));
+function isRouteLocked(path) {
+  const [view, id] = String(path || "").split("/");
+  if (view === "lesson") return isLessonLocked(id);
+  if (view === "module") return isModuleLocked(id);
+  return false;
+}
 const academicTitles = [
   ["fundamentos", "Explorador da Operação Low Ticket", "Explorador LowLab"],
   ["nicho-oferta", "Cartógrafo de Demanda", "Cartógrafo de Demanda"],
@@ -514,7 +524,8 @@ function showAchievement(award) {
 }
 
 function firstIncomplete() {
-  return [...lessonMap.values()].find((lesson) => !state.completed.has(lesson.id)) || [...lessonMap.values()][0];
+  const lessons = [...lessonMap.values()].filter((lesson) => !isLessonLocked(lesson.id));
+  return lessons.find((lesson) => !state.completed.has(lesson.id)) || lessons[0];
 }
 
 function moduleProgress(module) {
@@ -1368,6 +1379,7 @@ function setActiveNav(view) {
 }
 
 function navigate(path) {
+  if (isRouteLocked(path)) return;
   warmCriticalImage(path);
   location.hash = path;
   if (location.hash.slice(1) === path) renderRoute();
@@ -1375,6 +1387,7 @@ function navigate(path) {
 }
 
 function renderRoute() {
+  if (isRouteLocked(location.hash.slice(1))) { location.replace("#home"); return; }
   const route = location.hash.slice(1) || "home";
   const [view, id] = route.split("/");
   document.body.dataset.view = view;

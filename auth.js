@@ -71,9 +71,12 @@
     if (applicationLoaded) return;
     try {
       if (window.LowLabAuth?.user) {
+        const profile = window.LowLabAuth.profile || {};
+        const isDemo = profile.plan === "demo" && profile.role !== "admin";
         const { data, error } = await window.LowLabAuth.client.from("course_lessons").select("id,title,content");
-        if (error || !data || data.length !== 63) throw new Error("Não foi possível carregar as aulas. Tente novamente.");
+        if (error || !data || (isDemo ? data.length < 1 : data.length !== 63)) throw new Error("Não foi possível carregar as aulas. Tente novamente.");
         window.lessonContent = Object.fromEntries(data.map((lesson) => [lesson.title, lesson.content]));
+        window.LOWLAB_DEMO_UNLOCKED = isDemo ? new Set(data.map((lesson) => lesson.id)) : null;
       } else if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
         await loadScript("lesson-content.js");
       }
@@ -131,7 +134,7 @@
 
   async function openCampus(session) {
     const client = window.LowLabAuth.client;
-    const { data: profile, error: profileError } = await client.from("profiles").select("id,email,full_name,phone,birth_date,address,certificate_name,role,status").eq("id", session.user.id).single();
+    const { data: profile, error: profileError } = await client.from("profiles").select("id,email,full_name,phone,birth_date,address,certificate_name,role,status,plan").eq("id", session.user.id).single();
     if (profileError || !profile) throw new Error("Não foi possível carregar seu perfil.");
     if (profile.status === "pending") throw new Error("Seu cadastro está aguardando liberação.");
     if (profile.status !== "active") throw new Error("Este acesso está suspenso. Fale com o suporte LowLab.");
