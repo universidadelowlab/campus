@@ -151,25 +151,32 @@
     await showPartnerLink(client, session.user.id, profile);
   }
 
-  // Atalho para a Área de Parceiros (/parceiros/) no menu, só para afiliado ativo ou admin.
-  // É criado depois do app.js, então não entra na navegação interna do campus.
+  // Atalho para a Área de Parceiros (/parceiros/), só para afiliado ativo ou admin.
+  // Fica como uma aba dentro do Perfil (não no menu), para não aparecer quando o
+  // afiliado mostra o campus nas lives. É inserida depois que o app.js monta o perfil.
   async function showPartnerLink(client, userId, profile) {
     try {
-      if (document.querySelector("#partnerNav")) return;
       let ok = profile.role === "admin";
       if (!ok) {
         const { data } = await client.from("affiliates").select("status").eq("user_id", userId).maybeSingle();
         ok = !!data && data.status === "active";
       }
       if (!ok) return;
-      const link = document.createElement("a");
-      link.className = "nav-item";
-      link.id = "partnerNav";
-      link.href = "/parceiros/";
-      link.style.textDecoration = "none";
-      link.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 13.5 5.5 11a2.1 2.1 0 0 1 0-3l2-2a2.1 2.1 0 0 1 3 0l1.5 1.5L13.5 6a2.1 2.1 0 0 1 3 0l2 2a2.1 2.1 0 0 1 0 3L12 17.5z"/><path d="m10 11.5 2 2 3-3"/></svg>Área de Parceiros';
-      const anchor = document.querySelector("#adminNav");
-      anchor.parentNode.insertBefore(link, anchor);
+      const root = document.querySelector("#app");
+      if (!root) return;
+      const addTab = () => {
+        const tabs = root.querySelector(".profile-tabs");
+        if (!tabs || tabs.querySelector("#partnerTab")) return;
+        const link = document.createElement("a");
+        link.className = "profile-tab";
+        link.id = "partnerTab";
+        link.href = "/parceiros/";
+        link.style.textDecoration = "none";
+        link.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 13.5 5.5 11a2.1 2.1 0 0 1 0-3l2-2a2.1 2.1 0 0 1 3 0l1.5 1.5L13.5 6a2.1 2.1 0 0 1 3 0l2 2a2.1 2.1 0 0 1 0 3L12 17.5z"/><path d="m10 11.5 2 2 3-3"/></svg><span>Área de Parceiros</span>';
+        tabs.appendChild(link);
+      };
+      new MutationObserver(addTab).observe(root, { childList: true });
+      addTab();
     } catch (e) {}
   }
 
