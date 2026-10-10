@@ -10,6 +10,7 @@ const course = [
       ["Produto, oferta e aquisição: o mapa completo", "15 min"],
       ["Meta financeira e conta de trás para frente", "18 min"],
       ["Seu plano de execução em 30 dias", "14 min"],
+      ["Na prática: seu kit de ferramentas e IAs", "25 min"],
     ],
   },
   {
@@ -24,6 +25,7 @@ const course = [
       ["Mecanismo: por que sua solução funciona", "17 min"],
       ["Promessa específica sem exageros", "16 min"],
       ["Preço, garantia e empilhamento de valor", "23 min"],
+      ["Na prática: pesquisa de mercado com ferramentas", "40 min"],
     ],
   },
   {
@@ -38,6 +40,7 @@ const course = [
       ["E-book, mini curso, templates ou microapp", "18 min"],
       ["Produção rápida com padrão de qualidade", "22 min"],
       ["Onboarding e primeira vitória do aluno", "13 min"],
+      ["Na prática: produto pronto com IA, Gamma e Canva", "60 min"],
     ],
   },
   {
@@ -52,6 +55,7 @@ const course = [
       ["Prova social verdadeira e verificável", "16 min"],
       ["Objeções, garantia e perguntas frequentes", "19 min"],
       ["Página no ar: checklist de conversão", "27 min"],
+      ["Na prática: sua página no ar com IA", "60 min"],
     ],
   },
   {
@@ -65,6 +69,7 @@ const course = [
       ["Order bump complementar, não aleatório", "15 min"],
       ["Upsell e downsell com coerência", "20 min"],
       ["Entrega, suporte e recuperação de pagamento", "18 min"],
+      ["Na prática: checkout, order bump e entrega na Cakto", "45 min"],
     ],
   },
   {
@@ -80,6 +85,7 @@ const course = [
       ["Conteúdo de prova sem promessas enganosas", "17 min"],
       ["Stories que iniciam conversas", "19 min"],
       ["Oferta orgânica sem parecer insistente", "21 min"],
+      ["Na prática: gravar e editar com Edits, CapCut e Canva", "40 min"],
     ],
   },
   {
@@ -93,6 +99,7 @@ const course = [
       ["Produção em lote de uma semana", "22 min"],
       ["Distribuição: Reels, TikTok, Shorts e carrossel", "26 min"],
       ["Métricas orgânicas e ciclo de melhoria", "18 min"],
+      ["Na prática: agendar, cortar e responder com automação", "35 min"],
     ],
   },
   {
@@ -108,6 +115,9 @@ const course = [
       ["Campanha de teste: estrutura simples", "24 min"],
       ["Públicos amplos, interesses e remarketing", "21 min"],
       ["Políticas, bloqueios e operação responsável", "17 min"],
+      ["Na prática: estrutura da Meta, pixel e API de conversões", "50 min"],
+      ["Na prática: sua primeira campanha de vendas na Meta", "45 min"],
+      ["Na prática: Google Ads e TikTok Ads", "40 min"],
     ],
   },
   {
@@ -122,6 +132,7 @@ const course = [
       ["Criativos estáticos que param o scroll", "19 min"],
       ["Matriz de testes sem confusão", "24 min"],
       ["Como ler um teste de criativo", "20 min"],
+      ["Na prática: criativos com IA (imagem, vídeo e voz)", "50 min"],
     ],
   },
   {
@@ -135,6 +146,7 @@ const course = [
       ["CPM, CTR, CPC e conversão", "26 min"],
       ["Diagnóstico por etapa do funil", "19 min"],
       ["Ritual de otimização de 20 minutos", "16 min"],
+      ["Na prática: painel com Gerenciador, UTMify e planilha", "40 min"],
     ],
   },
   {
@@ -149,6 +161,7 @@ const course = [
       ["Esteira de produtos e próxima oferta", "20 min"],
       ["Assinatura e comunidade paga", "18 min"],
       ["Retenção, reativação e LTV", "21 min"],
+      ["Na prática: escalar na Meta sem quebrar o que funciona", "30 min"],
     ],
   },
   {
@@ -162,6 +175,7 @@ const course = [
       ["Suporte que reduz reembolso", "16 min"],
       ["LGPD, consentimento e uso de dados", "20 min"],
       ["Depoimentos, anúncios e promessas responsáveis", "17 min"],
+      ["Na prática: CNPJ, nota fiscal, acessos e segurança", "35 min"],
     ],
   },
   {
@@ -177,6 +191,7 @@ const course = [
       ["Prospecção ativa com opt-in e cadência", "22 min"],
       ["Contingência operacional e plano B", "20 min"],
       ["Follow-up automatizado, limites e descadastro", "21 min"],
+      ["Na prática: automações com ManyChat, WhatsApp e e-mail", "40 min"],
     ],
   },
 ].map((module, moduleIndex) => ({
@@ -782,7 +797,8 @@ function lessonConcepts(editorial) {
   return (paragraphs.length ? paragraphs : [editorial.result]).slice(0, 3);
 }
 
-function lessonVisualModel(item) {
+function lessonVisualModel(item, editorial) {
+  if (Array.isArray(editorial?.diagram?.items) && editorial.diagram.items.length) return { type: editorial.diagram.type || "flow", items: editorial.diagram.items };
   const title = item.title.toLocaleLowerCase("pt-BR");
   if (/cpa máximo|ponto de equilíbrio/.test(title)) return { type: "formula", items: [["Receita", "ticket médio"], ["− Custos", "taxas e entrega"], ["= Margem", "limite da mídia"]] };
   if (/cpm, ctr|conversão/.test(title)) return { type: "metrics", items: [["CPM", "entrega"], ["CTR", "atenção"], ["CPC", "clique"], ["CVR", "compra"]] };
@@ -797,18 +813,51 @@ function lessonVisualModel(item) {
 }
 
 function renderLessonDiagram(item, editorial) {
-  const model = lessonVisualModel(item);
+  const model = lessonVisualModel(item, editorial);
   return `<figure class="lesson-diagram lesson-diagram-${model.type}">
     <div class="lesson-diagram-grid">${model.items.map(([label, note], index) => `<div class="diagram-node"><span>${String(index + 1).padStart(2, "0")}</span><strong>${escapeHtml(label)}</strong><small>${escapeHtml(note)}</small></div>`).join("")}</div>
     <figcaption>${escapeHtml(editorial.visual || "Mapa visual da aula")}</figcaption>
   </figure>`;
 }
 
-function renderOfficialSources(item) {
-  const sources = officialLessonSources[item.title] || [];
+function renderOfficialSources(item, editorial) {
+  const seen = new Set();
+  const sources = [...(officialLessonSources[item.title] || []), ...(Array.isArray(editorial?.sources) ? editorial.sources : [])]
+    .filter((source) => Array.isArray(source) && source[1] && !seen.has(source[1]) && seen.add(source[1]));
   if (!sources.length) return "";
-  return `<div class="lesson-sources"><span>Referências oficiais</span>${sources.map(([label, url]) => `<a href="${url}" target="_blank" rel="noopener noreferrer">${escapeHtml(label)} ${icons.arrow}</a>`).join("")}</div>`;
+  return `<div class="lesson-sources"><span>Referências oficiais</span>${sources.map(([label, url]) => `<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(label)} ${icons.arrow}</a>`).join("")}</div>`;
 }
+
+// Aulas "Na prática" do mesmo módulo: o passo a passo com as ferramentas.
+function praticaLessons(item) {
+  return item.module.lessons.filter((lesson) => lesson.id !== item.id && /^Na prática/i.test(lesson.title));
+}
+
+function renderLessonGuide(guide) {
+  return `<div class="lesson-guide">${guide.map((section, index) => `<section class="lesson-guide-section">
+    <h3><span>${String(index + 1).padStart(2, "0")}</span>${escapeHtml(section.t || "")}</h3>
+    <ol>${(Array.isArray(section.s) ? section.s : []).map((step) => `<li>${escapeHtml(step)}</li>`).join("")}</ol>
+  </section>`).join("")}</div>`;
+}
+
+function renderLessonTools(item, tools) {
+  const cards = tools.map((tool) => {
+    const url = String(tool.u || "");
+    const link = !url ? "" : url.startsWith("#")
+      ? `<button class="lesson-tool-link" data-view-jump="${escapeHtml(url.slice(1))}">Abrir ${icons.arrow}</button>`
+      : `<a class="lesson-tool-link" href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">Abrir ${icons.arrow}</a>`;
+    return `<article class="lesson-tool"><div class="lesson-tool-head"><strong>${escapeHtml(tool.n || "")}</strong>${tool.c ? `<span>${escapeHtml(tool.c)}</span>` : ""}</div><p>${escapeHtml(tool.d || "")}</p>${link}</article>`;
+  }).join("");
+  const praticas = praticaLessons(item);
+  const pratica = praticas.length ? `<div class="lesson-tools-pratica"><span>Passo a passo completo</span>${praticas.map((lesson) => `<button class="secondary-button" data-lesson="${lesson.id}">${escapeHtml(lesson.title)} ${icons.arrow}</button>`).join("")}</div>` : "";
+  return `<div class="lesson-tools-grid">${cards}</div>${pratica}<small class="lesson-tools-note">Preços de referência (out/2026). Confira no site antes de assinar e comece pelo plano grátis.</small>`;
+}
+
+const AI_ASSISTANTS = [
+  ["ChatGPT", "https://chatgpt.com/"],
+  ["Claude", "https://claude.ai/new"],
+  ["Gemini", "https://gemini.google.com/app"],
+];
 
 function lessonSummaryText(item, editorial) {
   return [
@@ -886,7 +935,28 @@ function renderLesson(lessonId) {
   const story = storyFor(module.id);
   const concepts = lessonConcepts(editorial);
   const steps = lessonSteps(editorial.steps);
-  const slideCount = 6;
+  const aiActions = AI_ASSISTANTS.map(([label, url]) => `<button class="lesson-ai-open" data-ai-open="${url}" data-copy-prompt="${encodeURIComponent(editorial.chatgpt)}">Copiar e abrir no ${label} ${icons.arrow}</button>`).join("");
+  const contentSlides = [
+    { label: "Entenda", wide: false, html: `<h2>A ideia sem complicação.</h2>
+                  <div class="lesson-concept-grid">${concepts.map((paragraph, index) => `<article><span>0${index + 1}</span><p>${escapeHtml(paragraph)}</p></article>`).join("")}</div>` },
+    { label: "Visualize", wide: true, html: `<h2>Veja como as peças se conectam.</h2>
+                  ${renderLessonDiagram(item, editorial)}
+                  ${editorial.example ? `<div class="lesson-example"><span>Exemplo realista</span><p>${escapeHtml(editorial.example)}</p></div>` : ""}` },
+    { label: "Faça agora", wide: true, html: `<h2>${escapeHtml(editorial.practiceLabel === "Referência de bolso" ? "Leve esta referência." : "Saia com algo pronto.")}</h2>
+                  <div class="lesson-action-brief"><span>${icons.check}</span><p>${escapeHtml(editorial.practice)}</p></div>
+                  ${steps.length ? `<ol class="lesson-step-list">${steps.map((step, index) => `<li><span>${String(index + 1).padStart(2, "0")}</span><p>${escapeHtml(step)}</p></li>`).join("")}</ol>` : ""}` },
+  ];
+  if (Array.isArray(editorial.guide) && editorial.guide.length) contentSlides.push({ label: "Passo a passo", wide: true, html: `<h2>Siga na ordem, clique a clique.</h2>${renderLessonGuide(editorial.guide)}` });
+  if (Array.isArray(editorial.tools) && editorial.tools.length) contentSlides.push({ label: "Onde fazer", wide: true, html: `<h2>Ferramentas desta aula.</h2>${renderLessonTools(item, editorial.tools)}` });
+  contentSlides.push({ label: "Acelere com IA", wide: true, className: "lesson-ai-slide", html: `<h2>Use uma IA como assistente.</h2>
+                  <div class="lesson-prompt-card"><p>${escapeHtml(editorial.chatgpt)}</p><button class="prompt-copy-button" data-copy-prompt="${encodeURIComponent(editorial.chatgpt)}">Copiar prompt</button></div>
+                  <div class="lesson-ai-actions">${aiActions}</div>
+                  <small>Funciona no ChatGPT, no Claude e no Gemini (todos têm versão grátis). Cole o prompt, troque os campos entre colchetes e só então envie. Revise fatos, números, regras e a voz da sua marca antes de usar.</small>` });
+  contentSlides.push({ label: "Valide", wide: true, html: `<h2>Pronto para avançar?</h2>
+                  <div class="lesson-check-grid"><article class="ready"><span>${icons.check}</span><div><strong>Critério de pronto</strong><p>${escapeHtml(editorial.ready)}</p></div></article><article class="warning"><span>!</span><div><strong>Evite este erro</strong><p>${escapeHtml(editorial.avoid)}</p></div></article></div>
+                  ${renderOfficialSources(item, editorial)}
+                  <div class="lesson-finish-actions"><button class="primary-button" data-complete-lesson>${icons.check} ${completed ? "Aula concluída" : "Marcar como concluída"}</button>${next ? `<button class="secondary-button" data-lesson="${next.id}">Próxima aula ${icons.arrow}</button>` : ""}</div>` });
+  const slideCount = contentSlides.length + 1;
   app.innerHTML = `
     <button class="back-button" data-module-link="${module.id}">${icons.back} ${module.title}</button>${lessonQuotaLine()}
     <section class="lesson-layout">
@@ -908,46 +978,12 @@ function renderLesson(lessonId) {
                   <button class="lesson-inline-next" data-slide-next>Começar ${icons.arrow}</button>
                 </div>
               </article>
-              <article class="lesson-slide" aria-hidden="true" inert style="${lessonSlideVisualStyle(module, item.order, 2)}">
-                <div class="lesson-slide-copy">
-                  <span class="lesson-slide-eyebrow">01 · Entenda</span>
-                  <h2>A ideia sem complicação.</h2>
-                  <div class="lesson-concept-grid">${concepts.map((paragraph, index) => `<article><span>0${index + 1}</span><p>${escapeHtml(paragraph)}</p></article>`).join("")}</div>
+              ${contentSlides.map((slide, index) => `<article class="lesson-slide" aria-hidden="true" inert style="${lessonSlideVisualStyle(module, item.order, index + 2)}">
+                <div class="lesson-slide-copy${slide.wide ? " lesson-slide-copy-wide" : ""}${slide.className ? ` ${slide.className}` : ""}">
+                  <span class="lesson-slide-eyebrow">${String(index + 1).padStart(2, "0")} · ${slide.label}</span>
+                  ${slide.html}
                 </div>
-              </article>
-              <article class="lesson-slide" aria-hidden="true" inert style="${lessonSlideVisualStyle(module, item.order, 3)}">
-                <div class="lesson-slide-copy lesson-slide-copy-wide">
-                  <span class="lesson-slide-eyebrow">02 · Visualize</span>
-                  <h2>Veja como as peças se conectam.</h2>
-                  ${renderLessonDiagram(item, editorial)}
-                  ${editorial.example ? `<div class="lesson-example"><span>Exemplo realista</span><p>${escapeHtml(editorial.example)}</p></div>` : ""}
-                </div>
-              </article>
-              <article class="lesson-slide" aria-hidden="true" inert style="${lessonSlideVisualStyle(module, item.order, 4)}">
-                <div class="lesson-slide-copy lesson-slide-copy-wide">
-                  <span class="lesson-slide-eyebrow">03 · Faça agora</span>
-                  <h2>${escapeHtml(editorial.practiceLabel === "Referência de bolso" ? "Leve esta referência." : "Saia com algo pronto.")}</h2>
-                  <div class="lesson-action-brief"><span>${icons.check}</span><p>${escapeHtml(editorial.practice)}</p></div>
-                  ${steps.length ? `<ol class="lesson-step-list">${steps.map((step, index) => `<li><span>${String(index + 1).padStart(2, "0")}</span><p>${escapeHtml(step)}</p></li>`).join("")}</ol>` : ""}
-                </div>
-              </article>
-              <article class="lesson-slide" aria-hidden="true" inert style="${lessonSlideVisualStyle(module, item.order, 5)}">
-                <div class="lesson-slide-copy lesson-slide-copy-wide lesson-ai-slide">
-                  <span class="lesson-slide-eyebrow">04 · Acelere com IA</span>
-                  <h2>Use o ChatGPT como assistente.</h2>
-                  <div class="lesson-prompt-card"><p>${escapeHtml(editorial.chatgpt)}</p><button class="prompt-copy-button" data-copy-prompt="${encodeURIComponent(editorial.chatgpt)}">Copiar prompt</button></div>
-                  <small>Complete os campos entre colchetes. Revise fatos, números, regras e a voz da sua marca antes de usar.</small>
-                </div>
-              </article>
-              <article class="lesson-slide" aria-hidden="true" inert style="${lessonSlideVisualStyle(module, item.order, 6)}">
-                <div class="lesson-slide-copy lesson-slide-copy-wide">
-                  <span class="lesson-slide-eyebrow">05 · Valide</span>
-                  <h2>Pronto para avançar?</h2>
-                  <div class="lesson-check-grid"><article class="ready"><span>${icons.check}</span><div><strong>Critério de pronto</strong><p>${escapeHtml(editorial.ready)}</p></div></article><article class="warning"><span>!</span><div><strong>Evite este erro</strong><p>${escapeHtml(editorial.avoid)}</p></div></article></div>
-                  ${renderOfficialSources(item)}
-                  <div class="lesson-finish-actions"><button class="primary-button" data-complete-lesson>${icons.check} ${completed ? "Aula concluída" : "Marcar como concluída"}</button>${next ? `<button class="secondary-button" data-lesson="${next.id}">Próxima aula ${icons.arrow}</button>` : ""}</div>
-                </div>
-              </article>
+              </article>`).join("")}
             </div>
           </div>
           <footer class="lesson-deck-controls">
@@ -1053,7 +1089,7 @@ function renderLesson(lessonId) {
       showToast("Não foi possível copiar neste navegador.");
     }
   });
-  document.querySelectorAll("[data-copy-prompt]").forEach((button) => button.addEventListener("click", async () => {
+  document.querySelectorAll("[data-copy-prompt]:not([data-ai-open])").forEach((button) => button.addEventListener("click", async () => {
     try {
       await navigator.clipboard.writeText(decodeURIComponent(button.dataset.copyPrompt));
       showToast("Prompt copiado. Complete os campos entre colchetes.");
@@ -1061,7 +1097,28 @@ function renderLesson(lessonId) {
       showToast("Não foi possível copiar neste navegador.");
     }
   }));
+  // Copia o prompt e abre a IA escolhida em outra aba (a cópia acontece antes, enquanto a página ainda está em foco).
+  document.querySelectorAll("[data-ai-open]").forEach((button) => button.addEventListener("click", () => {
+    const text = decodeURIComponent(button.dataset.copyPrompt || "");
+    const copied = copyTextNow(text);
+    if (!copied) navigator.clipboard?.writeText(text).catch(() => {});
+    window.open(button.dataset.aiOpen, "_blank", "noopener");
+    showToast(copied ? "Prompt copiado. Cole na IA, troque os colchetes e envie." : "Se o prompt não colar, volte e use o botão Copiar prompt.");
+  }));
   bindCommon();
+}
+
+function copyTextNow(text) {
+  const area = document.createElement("textarea");
+  area.value = text;
+  area.setAttribute("readonly", "");
+  area.style.cssText = "position:fixed;top:-1000px;left:0;opacity:0";
+  document.body.appendChild(area);
+  area.select();
+  let copied = false;
+  try { copied = document.execCommand("copy"); } catch { copied = false; }
+  area.remove();
+  return copied;
 }
 
 function renderFavorites() {
@@ -1254,36 +1311,36 @@ function renderProfile() {
 }
 
 const planDays = [
-  { phase: "Fundação", title: "Entenda o jogo e escolha sua meta", lessons: ["fundamentos-1", "fundamentos-2"], deliverable: "Desenhe em uma página como produto, oferta, tráfego e entrega se conectam." },
-  { phase: "Fundação", title: "Transforme a meta em rotina", lessons: ["fundamentos-3", "fundamentos-4"], deliverable: "Defina meta, limite de investimento e um horário fixo para executar o plano." },
-  { phase: "Oferta", title: "Encontre uma demanda real", lessons: ["nicho-oferta-1", "nicho-oferta-2", "nicho-oferta-3"], deliverable: "Escolha um problema específico e registre 20 frases reais usadas pelo público." },
-  { phase: "Oferta", title: "Feche a promessa e a oferta-base", lessons: ["nicho-oferta-4", "nicho-oferta-5"], deliverable: "Escreva promessa, preço, garantia e componentes da primeira oferta." },
-  { phase: "Produto", title: "Projete o produto mínimo", lessons: ["produto-1", "produto-2", "produto-3"], deliverable: "Escolha o formato e crie o sumário completo da transformação." },
-  { phase: "Produto", title: "Produza e prepare a primeira vitória", lessons: ["produto-4", "produto-5"], deliverable: "Finalize a versão mínima do produto e o passo inicial do comprador." },
-  { phase: "Página", title: "Escreva a mensagem que vende", lessons: ["copy-pagina-1", "copy-pagina-2", "copy-pagina-3"], deliverable: "Rascunhe headline, mecanismo, benefícios e provas verificáveis." },
-  { phase: "Página", title: "Coloque a página no ar", lessons: ["copy-pagina-4", "copy-pagina-5"], deliverable: "Publique uma página curta com objeções, garantia, FAQ e CTA." },
-  { phase: "Funil", title: "Monte checkout e complemento", lessons: ["funil-1", "funil-2"], deliverable: "Configure checkout e um order bump realmente complementar." },
-  { phase: "Funil", title: "Conecte venda, entrega e suporte", lessons: ["funil-3", "funil-4"], deliverable: "Teste a compra ponta a ponta, incluindo upsell, acesso e recuperação." },
-  { phase: "Orgânico", title: "Defina posicionamento e pilares", lessons: ["organico-conteudo-1", "organico-conteudo-2"], deliverable: "Escreva seu posicionamento e quatro pilares de conteúdo." },
-  { phase: "Orgânico", title: "Crie roteiros que geram confiança", lessons: ["organico-conteudo-3", "organico-conteudo-4"], deliverable: "Produza cinco roteiros curtos, incluindo um conteúdo de prova." },
-  { phase: "Orgânico", title: "Publique e faça a primeira oferta", lessons: ["organico-conteudo-5", "organico-conteudo-6"], deliverable: "Publique, abra conversas nos stories e apresente a oferta." },
-  { phase: "Publicação", title: "Crie o banco e produza em lote", lessons: ["organico-maquina-1", "organico-maquina-2"], deliverable: "Monte 30 ideias e deixe uma semana de conteúdo preparada." },
-  { phase: "Publicação", title: "Ative a máquina semanal", lessons: ["organico-maquina-3", "organico-maquina-4"], deliverable: "Defina calendário de distribuição e painel simples de métricas." },
-  { phase: "Tráfego", title: "Prepare a estrutura de anúncios", lessons: ["trafego-pago-1", "trafego-pago-2"], deliverable: "Organize conta, página, gerenciador e acessos necessários." },
-  { phase: "Tráfego", title: "Instale e valide o rastreamento", lessons: ["trafego-pago-3", "trafego-pago-4"], deliverable: "Teste os eventos e deixe a campanha de validação configurada em rascunho." },
-  { phase: "Tráfego", title: "Feche público e segurança", lessons: ["trafego-pago-5", "trafego-pago-6"], deliverable: "Revise políticas, defina público e deixe a campanha aprovada em rascunho." },
-  { phase: "Criativos", title: "Escolha ângulos e formatos", lessons: ["criativos-1", "criativos-2"], deliverable: "Defina três ângulos e roteirize duas demonstrações éticas." },
-  { phase: "Criativos", title: "Produza e publique a matriz", lessons: ["criativos-3", "criativos-4"], deliverable: "Crie seis peças, documente a variável de cada uma e publique o teste controlado." },
-  { phase: "Criativos", title: "Prepare a leitura sem agir cedo", lessons: ["criativos-5"], deliverable: "Registre hipótese, janela mínima e critério de decisão antes de alterar a campanha." },
-  { phase: "Métricas", title: "Conheça o limite econômico", lessons: ["metricas-1", "metricas-2"], deliverable: "Calcule CPA máximo e monte uma leitura de CPM, CTR, CPC e conversão." },
-  { phase: "Métricas", title: "Crie o ritual de otimização", lessons: ["metricas-3", "metricas-4"], deliverable: "Diagnostique o gargalo e faça a primeira revisão de 20 minutos." },
-  { phase: "Escala", title: "Planeje crescimento com critério", lessons: ["escala-1", "escala-2", "escala-3"], deliverable: "Defina o sinal de escala e desenhe a próxima oferta da esteira." },
-  { phase: "Escala", title: "Aumente valor e retenção", lessons: ["escala-4", "escala-5"], deliverable: "Escolha uma ação de retenção, reativação ou recorrência para testar." },
-  { phase: "Operação", title: "Organize painel e atendimento", lessons: ["operacao-1", "operacao-2"], deliverable: "Crie o painel semanal e respostas-padrão para as dúvidas principais." },
-  { phase: "Operação", title: "Proteja dados e reputação", lessons: ["operacao-3", "operacao-4"], deliverable: "Revise consentimento, privacidade, provas e promessas publicadas." },
-  { phase: "Aceleração", title: "Fortaleça a oferta com transparência", lessons: ["aceleradores-1", "aceleradores-2"], deliverable: "Aprimore oferta, urgência e escassez usando apenas fatos verificáveis." },
-  { phase: "Aceleração", title: "Ative prova e prospecção responsável", lessons: ["aceleradores-3", "aceleradores-4"], deliverable: "Crie o pedido de depoimento e uma cadência curta com opt-in." },
-  { phase: "Aceleração", title: "Conclua com a operação rodando", lessons: ["aceleradores-5", "aceleradores-6"], deliverable: "Documente o plano B, ative o follow-up e escolha o próximo teste com base nos dados." },
+  { phase: "Fundação", title: "Entenda o jogo e monte o seu kit", lessons: ["fundamentos-1", "fundamentos-2", "fundamentos-5"], deliverable: "Mapa do negócio em uma página e contas do kit criadas (IA, Canva, Edits ou CapCut, Cakto), todas com verificação em duas etapas." },
+  { phase: "Fundação", title: "Faça a conta e trave a rotina", lessons: ["fundamentos-3", "fundamentos-4"], deliverable: "Meta, teto provisório de CPA (com os ~12% de impostos da mídia), verba de teste separada e blocos fixos na agenda." },
+  { phase: "Oferta", title: "Pesquise o mercado com as ferramentas", lessons: ["nicho-oferta-1", "nicho-oferta-6"], deliverable: "Tabela com links da Biblioteca de Anúncios, do Google Trends e de comentários, e um nicho escolhido." },
+  { phase: "Oferta", title: "Linguagem do cliente e mecanismo", lessons: ["nicho-oferta-2", "nicho-oferta-3"], deliverable: "20 frases reais organizadas e a frase “em vez de…, você… porque…”." },
+  { phase: "Oferta", title: "Feche promessa e oferta", lessons: ["nicho-oferta-4", "nicho-oferta-5"], deliverable: "Ficha da oferta com promessa, preço, garantia de pelo menos 7 dias e complementos." },
+  { phase: "Produto", title: "Projete o produto mínimo", lessons: ["produto-1", "produto-2", "produto-3"], deliverable: "Transformação, sumário e formato escolhidos." },
+  { phase: "Produto", title: "Produza com IA, Gamma e Canva", lessons: ["produto-4", "produto-6"], deliverable: "Versão 1 do produto pronta (PDF, planilha ou mini aulas), testada no celular por uma pessoa de fora." },
+  { phase: "Página", title: "Primeira vitória e mensagem da página", lessons: ["produto-5", "copy-pagina-1", "copy-pagina-2"], deliverable: "Boas-vindas do produto, topo da página e os 4 blocos da copy." },
+  { phase: "Página", title: "Monte a página com IA", lessons: ["copy-pagina-3", "copy-pagina-4", "copy-pagina-6"], deliverable: "Página montada no Lovable, Gamma ou GreatPages, com provas reais, FAQ, garantia e rodapé legal." },
+  { phase: "Checkout", title: "Checkout e order bump na Cakto", lessons: ["funil-1", "funil-2", "funil-5"], deliverable: "Produto na Cakto, order bump desmarcado e link do checkout em todos os botões da página." },
+  { phase: "Checkout", title: "Teste de ponta a ponta", lessons: ["funil-3", "funil-4", "copy-pagina-5"], deliverable: "Compra-teste aprovada, e-mail de acesso recebido e checklist da página sem bloqueios.", milestone: "Oferta pronta para vender" },
+  { phase: "Primeira oferta", title: "Ofereça para quem já conhece você", lessons: ["organico-conteudo-5", "organico-conteudo-6"], deliverable: "Stories e um post de oferta publicados, com conversas abertas com quem se interessou.", milestone: "Primeira oferta feita" },
+  { phase: "Tráfego", title: "Monte a estrutura da Meta", lessons: ["trafego-pago-1", "trafego-pago-2", "trafego-pago-7"], deliverable: "Portfólio, conta em BRL com fuso de Brasília, pagamento, pixel e token da API de conversões na Cakto." },
+  { phase: "Tráfego", title: "Rastreamento, público e políticas", lessons: ["trafego-pago-3", "trafego-pago-5", "trafego-pago-6"], deliverable: "Compra-teste vista uma única vez em Testar eventos, público definido e política revisada." },
+  { phase: "Criativos", title: "Ângulos, demonstração e gravação", lessons: ["criativos-1", "criativos-2", "organico-conteudo-7"], deliverable: "Três ângulos definidos e duas demonstrações gravadas e editadas no Edits ou no CapCut." },
+  { phase: "Criativos", title: "Estáticos, IA e matriz de testes", lessons: ["criativos-3", "criativos-6", "criativos-4"], deliverable: "Seis criativos de conceitos diferentes, nomeados, e a matriz de teste registrada." },
+  { phase: "Campanha", title: "Campanha de vendas no ar", lessons: ["trafego-pago-4", "trafego-pago-8"], deliverable: "Campanha de Vendas publicada com teto, UTMs e regras de corte escritas.", milestone: "Campanha de vendas no ar" },
+  { phase: "Métricas", title: "Limite econômico e painel", lessons: ["metricas-1", "metricas-5"], deliverable: "CPA máximo com impostos, colunas no Gerenciador e UTMify (ou planilha) ligada à Cakto." },
+  { phase: "Métricas", title: "Primeira leitura sem agir cedo", lessons: ["metricas-2", "criativos-5"], deliverable: "Leitura de entrega, atenção, intenção e compra registrada por criativo." },
+  { phase: "Métricas", title: "Diagnóstico e ritual diário", lessons: ["metricas-3", "metricas-4"], deliverable: "Primeiro gargalo identificado e ritual de 20 minutos com horário fixo." },
+  { phase: "Orgânico", title: "Posicionamento e pilares", lessons: ["organico-conteudo-1", "organico-conteudo-2"], deliverable: "Bio ajustada e 20 ideias distribuídas nos quatro pilares." },
+  { phase: "Orgânico", title: "Roteiros e conteúdo de prova", lessons: ["organico-conteudo-3", "organico-conteudo-4"], deliverable: "Cinco roteiros curtos e uma demonstração identificada como exemplo." },
+  { phase: "Publicação", title: "Banco de ideias e produção em lote", lessons: ["organico-maquina-1", "organico-maquina-2"], deliverable: "Banco com 30 ideias e uma semana de conteúdo produzida." },
+  { phase: "Publicação", title: "Agende, corte e meça", lessons: ["organico-maquina-3", "organico-maquina-5", "organico-maquina-4"], deliverable: "Semana agendada, automação de comentário testada e painel orgânico iniciado." },
+  { phase: "Expansão", title: "Novos canais e sinal de escala", lessons: ["trafego-pago-9", "escala-1", "escala-2", "escala-6"], deliverable: "Decisão registrada sobre Google e TikTok e o semáforo de escala preenchido com os seus números." },
+  { phase: "Operação", title: "Painel semanal, suporte e plano B", lessons: ["operacao-1", "operacao-2", "aceleradores-5"], deliverable: "Painel semanal, respostas-padrão e plano de contingência com backup." },
+  { phase: "Operação", title: "Dados, promessas, CNPJ e nota", lessons: ["operacao-3", "operacao-4", "operacao-5"], deliverable: "Inventário de dados, revisão das alegações e decisão (ou conversa marcada) sobre formalização e nota fiscal." },
+  { phase: "Aceleração", title: "Oferta mais forte com fatos", lessons: ["aceleradores-1", "aceleradores-2", "aceleradores-3"], deliverable: "Oferta revisada, urgência só com motivo real e pedido de depoimento pronto." },
+  { phase: "Aceleração", title: "Recuperação e automações", lessons: ["aceleradores-4", "aceleradores-6", "aceleradores-7"], deliverable: "Recuperação de Pix ativa, WhatsApp Business organizado e lista de clientes com descadastro." },
+  { phase: "Próximo ciclo", title: "Esteira, retenção e próximos 30 dias", lessons: ["escala-3", "escala-4", "escala-5"], deliverable: "Próxima oferta desenhada, jornada pós-compra e os testes do próximo ciclo escolhidos com base nos dados." },
 ];
 
 function planLessons(day) {
@@ -1306,12 +1363,16 @@ function renderPlan() {
   const activeDay = planDays[activeIndex];
   const activeLessons = planLessons(activeDay);
   const phases = [...new Set(planDays.map((day) => day.phase))];
+  const totalLessons = lessonMap.size;
+  const totalMinutes = [...lessonMap.values()].reduce((total, lesson) => total + (Number.parseInt(lesson.duration, 10) || 0), 0);
+  const planHours = `${Math.floor(totalMinutes / 60)}h${String(totalMinutes % 60).padStart(2, "0")}`;
+  const milestones = planDays.map((day, index) => ({ day, index })).filter(({ day }) => day.milestone);
   app.innerHTML = `
     <section class="plan-hero">
-      <div class="plan-hero-copy"><span class="eyebrow">Formação + execução</span><h1>30 dias para colocar em prática.</h1><p>63 aulas preservadas em um ritmo intensivo. Reserve de 2 a 3 horas por dia para estudar e executar.</p></div>
+      <div class="plan-hero-copy"><span class="eyebrow">Formação + execução</span><h1>30 dias para colocar sua oferta à venda.</h1><p>${totalLessons} aulas em ordem de execução, com as ferramentas de cada etapa. Reserve de 2 a 3 horas por dia para estudar e executar.</p><div class="plan-milestones">${milestones.map(({ day, index }) => `<span><b>Dia ${String(index + 1).padStart(2, "0")}</b>${escapeHtml(day.milestone)}</span>`).join("")}</div></div>
       <aside class="plan-hero-status"><strong>${completed}/30</strong><span>dias concluídos</span><div class="progress-track"><i style="width:${percent}%"></i></div><button class="primary-button" data-lesson="${activeLessons[0]?.id || "fundamentos-1"}">${completed === planDays.length ? "Rever a formação" : `Começar dia ${String(activeIndex + 1).padStart(2, "0")}`} ${icons.arrow}</button></aside>
     </section>
-    <section class="plan-summary" aria-label="Resumo do plano"><article><strong>63</strong><span>aulas</span></article><article><strong>20h20</strong><span>conteúdo</span></article><article><strong>2–3</strong><span>aulas por dia</span></article><article><strong>2–3h</strong><span>estudo + prática</span></article></section>
+    <section class="plan-summary" aria-label="Resumo do plano"><article><strong>${totalLessons}</strong><span>aulas</span></article><article><strong>${planHours}</strong><span>de execução</span></article><article><strong>2–4</strong><span>aulas por dia</span></article><article><strong>2–3h</strong><span>estudo + prática</span></article></section>
     <section class="plan-current">
       <div><span class="eyebrow">${completed === planDays.length ? "Ciclo concluído" : "Faça agora"}</span><h2>${completed === planDays.length ? "Sua operação já tem uma base completa." : `Dia ${String(activeIndex + 1).padStart(2, "0")} · ${activeDay.title}`}</h2><p>${activeDay.deliverable}</p></div>
       <button class="secondary-button" data-scroll-plan="${activeIndex + 1}">${completed === planDays.length ? "Rever último dia" : "Ver agenda do dia"} ${icons.arrow}</button>
@@ -1321,8 +1382,9 @@ function renderPlan() {
       return `<section class="plan-phase"><header><span>${String(entries[0].index + 1).padStart(2, "0")}—${String(entries.at(-1).index + 1).padStart(2, "0")}</span><h2>${phase}</h2></header><div class="plan-grid">${entries.map(({ day, index }) => {
         const lessons = planLessons(day);
         const done = state.plan.has(index + 1);
-        return `<article class="day-card ${done ? "done" : ""} ${index === activeIndex && !done ? "current" : ""}" id="plan-day-${index + 1}">
+        return `<article class="day-card ${done ? "done" : ""} ${index === activeIndex && !done ? "current" : ""} ${day.milestone ? "milestone" : ""}" id="plan-day-${index + 1}">
           <div class="day-top"><span>Dia ${String(index + 1).padStart(2, "0")}</span><span>${lessons.length} ${lessons.length === 1 ? "aula" : "aulas"} · ${planMinutes(day)} min</span></div>
+          ${day.milestone ? `<span class="day-milestone">Marco · ${escapeHtml(day.milestone)}</span>` : ""}
           <h3>${day.title}</h3>
           <div class="day-lessons">${lessons.map((lesson) => `<button data-lesson="${lesson.id}"><span>${lesson.module.title}</span><strong>${String(lesson.order).padStart(2, "0")} · ${lesson.title}</strong></button>`).join("")}</div>
           <div class="day-deliverable"><span>Entrega do dia</span><p>${day.deliverable}</p></div>

@@ -1448,3 +1448,40 @@ html[data-theme="dark"] .lesson-rail::-webkit-scrollbar-thumb { background: rgba
 .lesson-gate-next strong { color: var(--ink); }
 .lesson-gate-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
 @media (max-width: 640px) { .lesson-gate { padding: 24px 20px; } .lesson-quota { display: flex; margin: 8px 0 0; } .lesson-gate-actions > * { width: 100%; justify-content: center; } }
+
+/* Aulas "Na prática": passo a passo, ferramentas e IA (out/2026) */
+.lesson-guide { display: grid; gap: 12px; }
+.lesson-guide-section { padding: 16px 18px; border: 1px solid var(--line); border-radius: 16px; background: rgba(255,255,255,.25); }
+.lesson-guide-section h3 { display: flex; align-items: center; gap: 10px; margin: 0 0 10px; color: var(--ink); font-family: var(--font-display); font-size: 1.05rem; font-weight: 650; line-height: 1.2; }
+.lesson-guide-section h3 span { display: grid; flex: 0 0 30px; height: 30px; place-items: center; border-radius: 50%; background: var(--forest); color: var(--gold-light); font-family: var(--font-body); font-size: .62rem; font-weight: 850; }
+.lesson-guide-section ol { display: grid; gap: 7px; margin: 0; padding-left: 20px; }
+.lesson-guide-section li { color: var(--ink); font-size: .84rem; line-height: 1.55; overflow-wrap: anywhere; }
+.lesson-guide-section li::marker { color: var(--gold); font-weight: 800; }
+.lesson-tools-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; }
+.lesson-tool { display: flex; flex-direction: column; gap: 6px; padding: 15px 16px; border: 1px solid var(--line); border-radius: 15px; background: rgba(255,255,255,.25); }
+.lesson-tool-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 10px; }
+.lesson-tool-head strong { color: var(--ink); font-family: var(--font-display); font-size: 1rem; line-height: 1.2; }
+.lesson-tool-head span { color: var(--gold); font-size: .64rem; font-weight: 800; }
+.lesson-tool p { margin: 0; color: var(--muted); font-size: .8rem; line-height: 1.5; }
+.lesson-tool-link { display: inline-flex; align-items: center; gap: 6px; align-self: flex-start; margin-top: auto; padding: 6px 0 0; border: 0; background: none; color: var(--gold); font: inherit; font-size: .72rem; font-weight: 800; cursor: pointer; }
+.lesson-tool-link svg { width: 13px; height: 13px; }
+.lesson-tools-pratica { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 14px; }
+.lesson-tools-pratica > span { width: 100%; color: var(--muted); font-size: .64rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.lesson-tools-note { display: block; margin-top: 12px; color: var(--muted); font-size: .68rem; line-height: 1.5; }
+.lesson-ai-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.lesson-ai-open { display: inline-flex; align-items: center; gap: 7px; padding: 9px 14px; border: 1px solid var(--line); border-radius: 999px; background: transparent; color: var(--ink); font: inherit; font-size: .74rem; font-weight: 800; cursor: pointer; transition: transform .18s ease, border-color .18s ease, background .18s ease, color .18s ease; }
+.lesson-ai-open:hover { transform: translateY(-1px); border-color: var(--forest); background: var(--forest); color: var(--cream); }
+.lesson-ai-open svg { width: 13px; height: 13px; }
+.plan-milestones { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+.plan-milestones span { display: inline-flex; align-items: center; gap: 7px; padding: 7px 12px; border: 1px solid rgba(247,240,228,.2); border-radius: 999px; background: rgba(3,12,8,.35); color: var(--cream); font-size: .72rem; }
+.plan-milestones b { color: var(--gold-light); font-weight: 800; }
+.day-milestone { align-self: flex-start; margin: 14px 0 -6px; padding: 5px 10px; border-radius: 999px; background: var(--forest); color: var(--gold-light); font-size: .62rem; font-weight: 800; letter-spacing: .04em; }
+.day-card.milestone { border-color: rgba(184,151,98,.55); }
+html[data-theme="dark"] .lesson-guide-section,
+html[data-theme="dark"] .lesson-tool { background: rgba(247,240,228,.035); }
+html[data-theme="dark"] .day-milestone { background: var(--gold-light); color: var(--forest); }
+@media (max-width: 600px) {
+  .lesson-tools-grid { grid-template-columns: 1fr; }
+  .lesson-ai-open { width: 100%; justify-content: center; }
+  .lesson-guide-section { padding: 14px; }
+}

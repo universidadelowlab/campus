@@ -79,7 +79,7 @@
         const status = await client.rpc("lowlab_lesson_status");
         if (!status.error && status.data) {
           const { data, error } = await client.from("course_lessons").select("id,title");
-          if (error || !data || (isDemo ? data.length < 1 : data.length !== 63)) throw new Error("Não foi possível carregar as aulas. Tente novamente.");
+          if (error || !data || (isDemo ? data.length < 1 : data.length < 63)) throw new Error("Não foi possível carregar as aulas. Tente novamente.");
           window.lessonContent = {};
           window.LOWLAB_DEMO_UNLOCKED = isDemo ? new Set(data.map((lesson) => lesson.id)) : null;
           window.LOWLAB_LESSON_GATE = {
@@ -90,7 +90,7 @@
           };
         } else {
           const { data, error } = await client.from("course_lessons").select("id,title,content");
-          if (error || !data || (isDemo ? data.length < 1 : data.length !== 63)) throw new Error("Não foi possível carregar as aulas. Tente novamente.");
+          if (error || !data || (isDemo ? data.length < 1 : data.length < 63)) throw new Error("Não foi possível carregar as aulas. Tente novamente.");
           window.lessonContent = Object.fromEntries(data.map((lesson) => [lesson.title, lesson.content]));
           window.LOWLAB_DEMO_UNLOCKED = isDemo ? new Set(data.map((lesson) => lesson.id)) : null;
           window.LOWLAB_LESSON_GATE = null;
@@ -98,7 +98,7 @@
       } else if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
         await loadScript("lesson-content.js");
       }
-      await loadScript("app.js");
+      await loadScript("app.js?v=20261010");
       applicationLoaded = true;
     } catch (error) {
       window.lessonContent = null;
