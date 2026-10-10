@@ -47,6 +47,7 @@
     window.clearTimeout(syncTimer);
     userKeys.forEach((key) => localStorage.removeItem(key));
     window.lessonContent = null;
+    window.LOWLAB_LESSON_GATE = null;
   }
 
   function clearUserSession() {
@@ -73,10 +74,27 @@
       if (window.LowLabAuth?.user) {
         const profile = window.LowLabAuth.profile || {};
         const isDemo = profile.plan === "demo" && profile.role !== "admin";
-        const { data, error } = await window.LowLabAuth.client.from("course_lessons").select("id,title,content");
-        if (error || !data || (isDemo ? data.length < 1 : data.length !== 63)) throw new Error("Não foi possível carregar as aulas. Tente novamente.");
-        window.lessonContent = Object.fromEntries(data.map((lesson) => [lesson.title, lesson.content]));
-        window.LOWLAB_DEMO_UNLOCKED = isDemo ? new Set(data.map((lesson) => lesson.id)) : null;
+        const client = window.LowLabAuth.client;
+        // Aulas: a lista vem do banco; o texto de cada aula só é entregue quando o aluno abre (limite de aulas novas por dia).
+        const status = await client.rpc("lowlab_lesson_status");
+        if (!status.error && status.data) {
+          const { data, error } = await client.from("course_lessons").select("id,title");
+          if (error || !data || (isDemo ? data.length < 1 : data.length !== 63)) throw new Error("Não foi possível carregar as aulas. Tente novamente.");
+          window.lessonContent = {};
+          window.LOWLAB_DEMO_UNLOCKED = isDemo ? new Set(data.map((lesson) => lesson.id)) : null;
+          window.LOWLAB_LESSON_GATE = {
+            opened: new Set(status.data.abertas || []),
+            today: Number(status.data.hoje) || 0,
+            limit: Number(status.data.limite) || 5,
+            admin: Boolean(status.data.admin),
+          };
+        } else {
+          const { data, error } = await client.from("course_lessons").select("id,title,content");
+          if (error || !data || (isDemo ? data.length < 1 : data.length !== 63)) throw new Error("Não foi possível carregar as aulas. Tente novamente.");
+          window.lessonContent = Object.fromEntries(data.map((lesson) => [lesson.title, lesson.content]));
+          window.LOWLAB_DEMO_UNLOCKED = isDemo ? new Set(data.map((lesson) => lesson.id)) : null;
+          window.LOWLAB_LESSON_GATE = null;
+        }
       } else if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
         await loadScript("lesson-content.js");
       }
@@ -237,6 +255,19 @@
         const { data, error } = await client.rpc("set_lowlab_lesson_completion", { lesson_id: lessonId, is_complete: complete });
         if (error || !data?.[0]) throw new Error("Não foi possível salvar a conclusão.");
         return data[0];
+      },
+      openLesson: async (lessonId, title) => {
+        const { data, error } = await client.rpc("lowlab_open_lesson", { p_lesson_id: lessonId });
+        if (error || !data) return { ok: false, erro: "falha" };
+        const gate = window.LOWLAB_LESSON_GATE;
+        if (gate) { gate.today = Number(data.hoje) || gate.today; if (data.limite) gate.limit = Number(data.limite); }
+        if (!data.ok) return data;
+        let content = data.content;
+        if (typeof content === "string") { try { content = JSON.parse(content); } catch (e) { /* mantém como veio */ } }
+        window.lessonContent = window.lessonContent || {};
+        window.lessonContent[title] = content;
+        if (gate) gate.opened.add(lessonId);
+        return data;
       },
       clearUserStorage: clearUserSession };
     const { data } = await client.auth.getSession();

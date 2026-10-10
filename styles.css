@@ -1434,3 +1434,17 @@ html[data-theme="dark"] .lesson-rail::-webkit-scrollbar-thumb { background: rgba
   .admin-student-row { grid-template-columns: auto minmax(0,1fr) auto; }
   .admin-student-progress { grid-column: 2 / -1; }
 }
+
+/* Limite de aulas novas por dia */
+.lesson-quota { display: inline-flex; align-items: center; gap: 6px; margin: 0 0 0 16px; color: var(--muted); font-size: .78rem; vertical-align: middle; }
+.lesson-quota svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 1.8; }
+.lesson-quota strong { color: var(--ink); font-weight: 700; }
+.lesson-gate { max-width: 680px; margin: 28px 0 40px; padding: 34px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--paper); box-shadow: var(--shadow); }
+.lesson-gate h1 { margin: 6px 0 12px; font-family: var(--font-display); font-size: clamp(1.6rem, 3vw, 2.2rem); line-height: 1.1; color: var(--ink); }
+.lesson-gate p { color: var(--muted); line-height: 1.6; margin: 0 0 12px; }
+.lesson-gate-kicker { font-family: var(--font-nav); font-size: .72rem; letter-spacing: .18em; text-transform: uppercase; color: var(--gold) !important; margin: 0 !important; }
+.lesson-gate-icon { display: grid; place-items: center; width: 48px; height: 48px; margin-bottom: 16px; border-radius: 14px; background: var(--forest); color: var(--gold-light); }
+.lesson-gate-icon svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; }
+.lesson-gate-next strong { color: var(--ink); }
+.lesson-gate-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+@media (max-width: 640px) { .lesson-gate { padding: 24px 20px; } .lesson-quota { display: flex; margin: 8px 0 0; } .lesson-gate-actions > * { width: 100%; justify-content: center; } }

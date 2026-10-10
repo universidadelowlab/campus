@@ -820,8 +820,63 @@ function lessonSummaryText(item, editorial) {
   ].filter(Boolean).join("\n\n");
 }
 
+// Limite de aulas novas por dia: o texto da aula vem do servidor na hora em que o aluno abre.
+const lessonGate = () => window.LOWLAB_LESSON_GATE || null;
+function lessonQuotaLine() {
+  const gate = lessonGate();
+  if (!gate || gate.admin) return "";
+  const left = Math.max(0, gate.limit - gate.today);
+  return `<p class="lesson-quota">${icons.lock} Aulas novas hoje: <strong>${Math.min(gate.today, gate.limit)} de ${gate.limit}</strong>${left ? "" : " · amanhã libera mais"}</p>`;
+}
+function lastOpenedLesson(exceptId) {
+  const gate = lessonGate();
+  if (!gate) return null;
+  const opened = [...lessonMap.values()].filter((lesson) => gate.opened.has(lesson.id) && lesson.id !== exceptId);
+  return opened.find((lesson) => !state.completed.has(lesson.id)) || opened[opened.length - 1] || null;
+}
+function renderLessonGate(item, status) {
+  const { module } = item;
+  const back = `<button class="back-button" data-module-link="${module.id}">${icons.back} ${module.title}</button>`;
+  if (status === "loading") {
+    app.innerHTML = `${back}<section class="lesson-gate"><p class="lesson-gate-kicker">${module.title}</p><h1>${item.title}</h1><p>Carregando a aula…</p></section>`;
+    bindCommon();
+    return;
+  }
+  if (status && status.erro === "limite") {
+    const resume = lastOpenedLesson(item.id);
+    app.innerHTML = `${back}
+      <section class="lesson-gate locked">
+        <span class="lesson-gate-icon">${icons.lock}</span>
+        <p class="lesson-gate-kicker">Limite de hoje atingido</p>
+        <h1>Você já abriu ${status.limite || 5} aulas novas hoje.</h1>
+        <p>Para proteger o conteúdo da LowLab, cada aluno abre até ${status.limite || 5} aulas novas por dia. As aulas que você já abriu continuam liberadas para revisar. Amanhã você pode abrir mais ${status.limite || 5}.</p>
+        <p class="lesson-gate-next">Próxima aula nova: <strong>${item.title}</strong></p>
+        <div class="lesson-gate-actions">
+          ${resume ? `<button class="primary-button" data-gate-lesson="${resume.id}">Continuar de onde parei ${icons.arrow}</button>` : ""}
+          <button class="secondary-button" data-view-jump="plan">Ver o Plano 30 dias</button>
+        </div>
+      </section>`;
+    bindCommon();
+    document.querySelectorAll("[data-gate-lesson]").forEach((button) => button.addEventListener("click", () => navigate(`lesson/${button.dataset.gateLesson}`)));
+    document.querySelectorAll("[data-view-jump]").forEach((button) => button.addEventListener("click", () => navigate(button.dataset.viewJump)));
+    return;
+  }
+  app.innerHTML = `${back}<section class="lesson-gate"><p class="lesson-gate-kicker">${module.title}</p><h1>Não foi possível abrir esta aula agora.</h1><p>Verifique sua conexão e tente de novo.</p><div class="lesson-gate-actions"><button class="primary-button" data-gate-retry>Tentar de novo</button></div></section>`;
+  bindCommon();
+  document.querySelector("[data-gate-retry]")?.addEventListener("click", () => renderLesson(item.id));
+}
+
 function renderLesson(lessonId) {
   const item = lessonMap.get(lessonId) || firstIncomplete();
+  if (lessonGate() && !window.lessonContent?.[item.title]) {
+    renderLessonGate(item, "loading");
+    window.LowLabAuth?.openLesson(item.id, item.title).then((result) => {
+      if (location.hash.slice(1) !== `lesson/${lessonId}` && lessonMap.has(lessonId)) return;
+      if (result && result.ok) renderLesson(item.id);
+      else renderLessonGate(item, result || { erro: "falha" });
+    });
+    return;
+  }
   const { module } = item;
   const moduleLessonIndex = module.lessons.findIndex((lesson) => lesson.id === item.id);
   const next = module.lessons[moduleLessonIndex + 1] || course[module.index]?.lessons[0] || null;
@@ -833,7 +888,7 @@ function renderLesson(lessonId) {
   const steps = lessonSteps(editorial.steps);
   const slideCount = 6;
   app.innerHTML = `
-    <button class="back-button" data-module-link="${module.id}">${icons.back} ${module.title}</button>
+    <button class="back-button" data-module-link="${module.id}">${icons.back} ${module.title}</button>${lessonQuotaLine()}
     <section class="lesson-layout">
       <div class="lesson-main" id="lessonPrintArea">
         <section class="lesson-deck" tabindex="0" aria-label="Aula em ${slideCount} etapas">
