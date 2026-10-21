@@ -194,6 +194,19 @@ const course = [
       ["Na prática: automações com ManyChat, WhatsApp e e-mail", "40 min"],
     ],
   },
+  {
+    id: "ofertas-epoca",
+    title: "Ofertas por época e por nicho",
+    track: "Oferta",
+    extra: true,
+    color: "#ffc857",
+    description: "Trilha extra: escolha a próxima oferta pelo calendário do ano, embale melhor o que você já sabe e feche vendas pelo privado com quem pediu contato.",
+    lessons: [
+      ["Calendário de oportunidades do ano", "20 min"],
+      ["Oferta é embalagem: desafio, kit, guia e mapa", "18 min"],
+      ["Venda pelo privado: a conversa que fecha", "24 min"],
+    ],
+  },
 ].map((module, moduleIndex) => ({
   ...module,
   index: moduleIndex + 1,
@@ -207,6 +220,12 @@ const course = [
 }));
 
 const lessonMap = new Map(course.flatMap((module) => module.lessons.map((lesson) => [lesson.id, { ...lesson, module }])));
+// Trilhas extras (module.extra) ficam fora do percentual da formação e do certificado, como no banco (course_lessons.extra).
+const coreLessonIds = new Set(course.filter((module) => !module.extra).flatMap((module) => module.lessons.map((lesson) => lesson.id)));
+const coreTotal = coreLessonIds.size;
+const coreDoneOf = (ids) => [...ids].filter((id) => coreLessonIds.has(id)).length;
+const coreDone = () => coreDoneOf(state.completed);
+const extraLabel = (module) => (module.extra ? " · trilha extra" : "");
 // Modo demonstração (afiliados): só as aulas entregues pelo banco abrem; o resto aparece igual, mas não responde ao clique.
 const demoUnlocked = window.LOWLAB_DEMO_UNLOCKED instanceof Set ? window.LOWLAB_DEMO_UNLOCKED : null;
 const isLessonLocked = (id) => Boolean(demoUnlocked) && !demoUnlocked.has(id);
@@ -231,6 +250,7 @@ const academicTitles = [
   ["escala", "Estrategista de Escala & LTV", "Estrategista de Escala"],
   ["operacao", "Gestor de Operações Digitais", "Gestor de Operações"],
   ["aceleradores", "Operador LowLab", "Operador LowLab"],
+  ["ofertas-epoca", "Estrategista de Ofertas Sazonais", "Estrategista Sazonal"],
 ].map(([moduleId, title, short], index) => ({ moduleId, title, short, level: index + 1 }));
 
 const state = {
@@ -489,8 +509,8 @@ function persist() {
 }
 
 function updateProgress() {
-  const total = lessonMap.size;
-  const percent = Math.round((state.completed.size / total) * 100);
+  const total = coreTotal;
+  const percent = Math.round((coreDone() / total) * 100);
   document.querySelector("#sidebarProgress").textContent = `${percent}% concluído`;
   document.querySelector("#sidebarProgressBar").style.width = `${percent}%`;
   const name = state.profile.fullName || state.studentName || "Membro LowLab";
@@ -520,7 +540,7 @@ function applyTheme(theme, persistChoice = true) {
 
 function showAchievement(award) {
   document.querySelector(".achievement-overlay")?.remove();
-  const finalAchievement = state.completed.size === lessonMap.size;
+  const finalAchievement = coreDone() === coreTotal;
   document.body.insertAdjacentHTML("beforeend", `
     <div class="achievement-overlay" role="dialog" aria-modal="true" aria-labelledby="achievementTitle">
       <div class="confetti" aria-hidden="true">${Array.from({ length: 18 }, (_, index) => `<i style="--i:${index}"></i>`).join("")}</div>
@@ -558,7 +578,7 @@ function moduleCard(module) {
       <h3>${module.title}</h3>
       ${complete ? `<span class="module-award-chip">${icons.award} ${award.short}</span>` : ""}
       <div class="module-meta">
-        <span>${progress.done}/${module.lessons.length} aulas</span>
+        <span>${progress.done}/${module.lessons.length} aulas${extraLabel(module)}</span>
         <div class="mini-progress"><span style="width:${progress.percent}%"></span></div>
         <span class="module-arrow">${icons.arrow}</span>
       </div>
@@ -589,7 +609,7 @@ function moduleRail(module) {
       <header class="catalog-module-head">
         <div class="catalog-module-title">
           <span class="catalog-index">${String(module.index).padStart(2, "0")}</span>
-          <div><span class="catalog-progress">${progress.done}/${module.lessons.length} aulas</span><h2 id="rail-title-${module.id}">${module.title}</h2></div>
+          <div><span class="catalog-progress">${progress.done}/${module.lessons.length} aulas${extraLabel(module)}</span><h2 id="rail-title-${module.id}">${module.title}</h2></div>
         </div>
         <div class="catalog-module-actions">
           <button class="text-button" data-module="${module.id}">Abrir ${icons.arrow}</button>
@@ -616,7 +636,7 @@ function filterModuleCard(module) {
         <span class="filter-module-progress">${progress.percent}%</span>
       </div>
       <div class="filter-module-copy">
-        <span>${module.lessons.length} aulas</span>
+        <span>${module.lessons.length} aulas${extraLabel(module)}</span>
         <h3>${module.title}</h3>
         <div><small>${progress.percent === 100 ? award.short : `${progress.done}/${module.lessons.length} concluídas`}</small><span>${icons.arrow}</span></div>
       </div>
@@ -634,7 +654,7 @@ function filteredCourse() {
 
 function renderHome() {
   const next = firstIncomplete();
-  const completedPercent = Math.round((state.completed.size / lessonMap.size) * 100);
+  const completedPercent = Math.round((coreDone() / coreTotal) * 100);
   const planDay = nextPlanDay();
   const planDayNumber = Math.max(1, planDays.indexOf(planDay) + 1);
   const planPercent = Math.round((state.plan.size / planDays.length) * 100);
@@ -753,7 +773,7 @@ function renderModule(moduleId) {
         <button class="back-button" data-back="tracks">${icons.back} Voltar para filtros</button>
         <h1>${module.title}</h1>
       </article>
-      <aside class="module-summary"><strong>${progress.percent}%</strong><div class="progress-track"><span style="width:${progress.percent}%;background:${module.color}"></span></div><small>${progress.done}/${module.lessons.length} aulas</small></aside>
+      <aside class="module-summary"><strong>${progress.percent}%</strong><div class="progress-track"><span style="width:${progress.percent}%;background:${module.color}"></span></div><small>${progress.done}/${module.lessons.length} aulas${extraLabel(module)}</small></aside>
     </section>
     <div class="section-head"><h2>Aulas</h2></div>
     <section class="lesson-list">
@@ -1147,8 +1167,8 @@ function formatCompletionDate() {
 }
 
 function renderFormation() {
-  const total = lessonMap.size;
-  const completed = state.completed.size;
+  const total = coreTotal;
+  const completed = coreDone();
   const percent = Math.round((completed / total) * 100);
   const achievements = unlockedAwards();
   const current = achievements.at(-1);
@@ -1161,7 +1181,7 @@ function renderFormation() {
       <aside class="formation-status">
         <strong>${current?.title || "Primeira conquista em construção"}</strong>
         <div class="progress-track"><span style="width:${percent}%"></span></div>
-        <small>${completed} de ${total} aulas · ${achievements.length} de ${academicTitles.length} títulos</small>
+        <small>${completed} de ${total} aulas · ${achievements.filter((award) => !course.find((module) => module.id === award.moduleId)?.extra).length} de ${academicTitles.filter((award) => !course.find((module) => module.id === award.moduleId)?.extra).length} títulos</small>
       </aside>
     </section>
 
@@ -1258,7 +1278,7 @@ function profileAddressPanel() {
 }
 
 function profileCertificatesPanel() {
-  const finished = state.completed.size === lessonMap.size && Boolean(state.completionDate && state.certificateCode);
+  const finished = coreDone() === coreTotal && Boolean(state.completionDate && state.certificateCode);
   return `
     <div class="profile-certificate-list">
       ${academicTitles.map((award) => {
@@ -1269,7 +1289,7 @@ function profileCertificatesPanel() {
     </div>
     <article class="profile-diploma ${finished ? "unlocked" : ""}">
       <span>${finished ? icons.award : icons.lock}</span>
-      <div><strong>Certificado LowLab</strong><small>${finished ? "Disponível para emissão" : `${Math.round((state.completed.size / lessonMap.size) * 100)}% concluído`}</small></div>
+      <div><strong>Certificado LowLab</strong><small>${finished ? "Disponível para emissão" : `${Math.round((coreDone() / coreTotal) * 100)}% concluído`}</small></div>
       <button class="secondary-button" data-view-jump="formation">${finished ? "Abrir certificado" : "Ver formação"}</button>
     </article>`;
 }
@@ -1363,8 +1383,8 @@ function renderPlan() {
   const activeDay = planDays[activeIndex];
   const activeLessons = planLessons(activeDay);
   const phases = [...new Set(planDays.map((day) => day.phase))];
-  const totalLessons = lessonMap.size;
-  const totalMinutes = [...lessonMap.values()].reduce((total, lesson) => total + (Number.parseInt(lesson.duration, 10) || 0), 0);
+  const totalLessons = coreTotal;
+  const totalMinutes = [...lessonMap.values()].filter((lesson) => coreLessonIds.has(lesson.id)).reduce((total, lesson) => total + (Number.parseInt(lesson.duration, 10) || 0), 0);
   const planHours = `${Math.floor(totalMinutes / 60)}h${String(totalMinutes % 60).padStart(2, "0")}`;
   const milestones = planDays.map((day, index) => ({ day, index })).filter(({ day }) => day.milestone);
   app.innerHTML = `
@@ -1435,8 +1455,8 @@ async function renderAdmin() {
     <div class="admin-student-list">
       ${students.length ? students.map((profile) => {
         const progress = progressMap.get(profile.id);
-        const done = (progress?.completed_lessons || []).length;
-        const percent = Math.round((done / lessonMap.size) * 100);
+        const done = coreDoneOf(progress?.completed_lessons || []);
+        const percent = Math.round((done / coreTotal) * 100);
         const statusLabel = profile.status === "active" ? "Ativo" : profile.status === "pending" ? "Liberar" : "Suspenso";
         return `<article class="admin-student-row"><span class="admin-student-avatar">${escapeHtml((profile.full_name || profile.email || "A").slice(0, 1).toUpperCase())}</span><div><strong>${escapeHtml(profile.full_name || "Aluno LowLab")}</strong><small>${escapeHtml(profile.email)}</small></div><div class="admin-student-progress"><span>${percent}%</span><div class="progress-track"><i style="width:${percent}%"></i></div></div><button class="admin-status ${profile.status}" data-admin-user="${profile.id}" data-next-status="${profile.status === "active" ? "suspended" : "active"}">${statusLabel}</button></article>`;
       }).join("") : `<div class="admin-empty">Nenhum aluno cadastrado ainda.</div>`}

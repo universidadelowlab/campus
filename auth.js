@@ -98,7 +98,7 @@
       } else if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
         await loadScript("lesson-content.js");
       }
-      await loadScript("app.js?v=20261010");
+      await loadScript("app.js?v=20261021");
       applicationLoaded = true;
     } catch (error) {
       window.lessonContent = null;
